@@ -2,8 +2,15 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
+
+<!-- 🔥 RESPONSIVE META -->
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
 <title>Subscriber Counter</title>
-<link rel="icon" type="image/x-icon" href="c:\Users\ahero\Downloads\ChatGPT Image Apr 25, 2026, 01_07_28 PM.png">
+
+<!-- FIXED FAVICON -->
+<link rel="icon" href="logo.png">
+
 <style>
 body {
   margin: 0;
@@ -12,7 +19,7 @@ body {
   flex-direction: column;
   justify-content: space-between;
   align-items: center;
-  background: #000; /* 🔥 FULL BLACK */
+  background: #000;
   font-family: 'Segoe UI', Arial;
 }
 
@@ -26,7 +33,6 @@ body {
   align-items: center;
 }
 
-/* RUNNING TEXT */
 .marquee span {
   white-space: nowrap;
   color: #fff;
@@ -113,6 +119,48 @@ img {
 
 .card { display:none; }
 
+/* 📱 MOBILE */
+@media (max-width: 600px) {
+  .container {
+    width: 90%;
+    padding: 20px;
+  }
+
+  #subs {
+    font-size: 50px;
+  }
+
+  .boxes {
+    flex-direction: column;
+  }
+
+  input, button {
+    width: 90%;
+  }
+}
+
+/* 💻 TABLET */
+@media (max-width: 900px) {
+  .container {
+    width: 80%;
+  }
+}
+
+/* 📺 TV / LARGE SCREEN */
+@media (min-width: 1200px) {
+  .container {
+    width: 800px;
+    padding: 60px;
+  }
+
+  #subs {
+    font-size: 120px;
+  }
+
+  h1 {
+    font-size: 40px;
+  }
+}
 </style>
 </head>
 
@@ -125,7 +173,7 @@ img {
 
 <div class="container">
 
-<h1>subscriber Counter</h1>
+<h1>Subscriber Counter</h1>
 
 <input id="search" placeholder="Search..."
 oninput="liveSearch()" onkeydown="handleEnter(event)">
@@ -239,7 +287,6 @@ async function loadStats(){
   let ch=data.items[0];
   let subs=parseInt(ch.statistics.subscriberCount);
 
-  /* 🔔 SOUND WHEN CHANGE */
   if(lastSubs!==0 && subs!==lastSubs){
     sound.play();
   }
@@ -256,7 +303,7 @@ async function loadStats(){
   document.getElementById("card").style.display="block";
 }
 
-/* AUTO UPDATE */
+/* AUTO */
 setInterval(()=>{
   if(channelId) loadStats();
 },5000);
