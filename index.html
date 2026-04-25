@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Subscriber Counter</title>
+<link rel="icon" type="image/x-icon" href="c:\Users\ahero\Downloads\ChatGPT Image Apr 25, 2026, 01_07_28 PM.png">
+<style>
+body {
+  margin: 0;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  align-items: center;
+  background: #000; /* 🔥 FULL BLACK */
+  font-family: 'Segoe UI', Arial;
+}
+
+/* HEADER + FOOTER */
+.marquee {
+  width: 100%;
+  height: 30px;
+  background: #000;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+}
+
+/* RUNNING TEXT */
+.marquee span {
+  white-space: nowrap;
+  color: #fff;
+  font-size: 14px;
+  font-weight: bold;
+  animation: scroll 10s linear infinite;
+}
+
+@keyframes scroll {
+  0% { transform: translateX(100%); }
+  100% { transform: translateX(-100%); }
+}
+
+/* MAIN */
+.container {
+  padding: 50px;
+  background: #000;
+  color: white;
+  border-radius: 25px;
+  text-align: center;
+  width: 550px;
+  box-shadow: 0 0 30px rgba(0,255,200,0.2);
+}
+
+/* INPUT */
+input {
+  padding: 12px;
+  width: 260px;
+  border-radius: 25px;
+  border: none;
+  background: #111;
+  color: white;
+}
+
+button {
+  padding: 12px 18px;
+  border-radius: 25px;
+  border: none;
+  background: red;
+  color: white;
+  cursor: pointer;
+}
+
+/* PROFILE */
+img {
+  border-radius: 50%;
+  border: 3px solid #00ffcc;
+}
+
+/* SUB */
+#subs {
+  font-size: 90px;
+  color: #00ffcc;
+}
+
+/* BOXES */
+.boxes {
+  display: flex;
+  justify-content: center;
+  gap: 20px;
+}
+
+.box {
+  background: #111;
+  padding: 20px;
+  border-radius: 15px;
+  width: 130px;
+}
+
+/* Suggestions */
+#suggestions {
+  background: #111;
+  border-radius: 10px;
+}
+
+#suggestions div {
+  padding: 10px;
+  cursor: pointer;
+}
+
+#suggestions div:hover {
+  background: #222;
+}
+
+.card { display:none; }
+
+</style>
+</head>
+
+<body>
+
+<!-- HEADER -->
+<div class="marquee">
+  <span> SUBSCRIBE TO Rohangaming111 </span>
+</div>
+
+<div class="container">
+
+<h1>subscriber Counter</h1>
+
+<input id="search" placeholder="Search..."
+oninput="liveSearch()" onkeydown="handleEnter(event)">
+<button onclick="getChannel()">Search</button>
+
+<div id="suggestions"></div>
+
+<div id="card" class="card">
+  <img id="logo" width="100"><br>
+  <h2 id="name"></h2>
+
+  <div id="subs">0</div>
+  <div>Subscribers</div>
+
+  <div class="boxes">
+    <div class="box">
+      <h3 id="viewsBox">0</h3>
+      <p>Views</p>
+    </div>
+
+    <div class="box">
+      <h3 id="videosBox">0</h3>
+      <p>Videos</p>
+    </div>
+  </div>
+
+</div>
+
+</div>
+
+<!-- FOOTER -->
+<div class="marquee">
+  <span>
+    Created by Ayan Sumalani | 
+    <a href="mailto:officialswiftlgo@gmail.com" style="color:#00aaff;">
+      Contact
+    </a>
+  </span>
+</div>
+
+<script>
+
+const API_KEY = "AIzaSyBzR_VJEq0gvf6U_RQ9I-GTaG_Lim0nyAQ";
+let channelId = "";
+
+/* 🔔 SOUND */
+let lastSubs = 0;
+const sound = new Audio("https://www.soundjay.com/buttons/sounds/button-3.mp3");
+
+/* ENTER */
+function handleEnter(e){
+  if(e.key==="Enter") getChannel();
+}
+
+/* LIVE SEARCH */
+async function liveSearch(){
+  let q=document.getElementById("search").value;
+  let box=document.getElementById("suggestions");
+
+  if(q.length<2){
+    box.innerHTML="";
+    return;
+  }
+
+  let res=await fetch(`https://www.googleapis.com/youtube/v3/search?part=snippet&type=channel&q=${q}&maxResults=5&key=${API_KEY}`);
+  let data=await res.json();
+
+  box.innerHTML="";
+
+  data.items.forEach(item=>{
+    let div=document.createElement("div");
+
+    div.innerHTML=`
+      <img src="${item.snippet.thumbnails.default.url}" width="30">
+      ${item.snippet.title}
+    `;
+
+    div.onclick=()=>{
+      channelId=item.snippet.channelId;
+      document.getElementById("search").style.display="none";
+      document.querySelector("button").style.display="none";
+      box.innerHTML="";
+      loadStats();
+    };
+
+    box.appendChild(div);
+  });
+}
+
+/* SEARCH */
+async function getChannel(){
+  let q=document.getElementById("search").value;
+
+  let res=await fetch(`https://www.googleapis.com/youtube/v3/search?part=snippet&type=channel&q=${q}&key=${API_KEY}`);
+  let data=await res.json();
+
+  if(!data.items.length){
+    alert("Channel not found");
+    return;
+  }
+
+  channelId=data.items[0].snippet.channelId;
+  loadStats();
+}
+
+/* LOAD */
+async function loadStats(){
+  let res=await fetch(`https://www.googleapis.com/youtube/v3/channels?part=snippet,statistics&id=${channelId}&key=${API_KEY}`);
+  let data=await res.json();
+
+  let ch=data.items[0];
+  let subs=parseInt(ch.statistics.subscriberCount);
+
+  /* 🔔 SOUND WHEN CHANGE */
+  if(lastSubs!==0 && subs!==lastSubs){
+    sound.play();
+  }
+
+  lastSubs=subs;
+
+  document.getElementById("logo").src=ch.snippet.thumbnails.high.url;
+  document.getElementById("name").innerText=ch.snippet.title;
+
+  document.getElementById("subs").innerText=subs.toLocaleString();
+  document.getElementById("viewsBox").innerText=Number(ch.statistics.viewCount).toLocaleString();
+  document.getElementById("videosBox").innerText=ch.statistics.videoCount;
+
+  document.getElementById("card").style.display="block";
+}
+
+/* AUTO UPDATE */
+setInterval(()=>{
+  if(channelId) loadStats();
+},5000);
+
+</script>
+
+</body>
+</html>
